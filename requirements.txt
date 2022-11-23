@@ -1,0 +1,11 @@
+Django
+wolframalpha
+whapi
+wikipedia
+pyqrcode
+pypng
+PyPDF2
+matplotlib
+pandas
+openpyxl
+moviepy

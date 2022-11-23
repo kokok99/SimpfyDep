@@ -1,0 +1,35 @@
+.divider:after,
+.divider:before {
+content: "";
+flex: 1;
+height: 1px;
+background: #eee;
+}
+
+.likebutton {
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.scroll {
+    margin:5px;
+    padding:5px;
+    width: 300px;
+    height: 400px;
+    overflow: auto;
+    text-align:justify;
+}
+
+.sticky {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+  }
+
+.card-img {
+    width: 100%;
+    height: 19vw;
+    object-fit: cover;
+}
+

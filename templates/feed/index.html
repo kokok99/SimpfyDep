@@ -1,0 +1,234 @@
+{% load static %}
+{% include "../header.html" %}
+
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Welcome <b>{{ user_profile.user.username }}</b></h1>
+    </div><!-- End Page Title --><br>
+
+    <section class="section dashboard">
+      <div class="row">
+
+        <!-- Left side columns -->
+        <div class="col-lg-6">
+          <div class="row">
+
+            <!-- Customers Card -->
+            <div class="col-xxl-4 col-xl-12">
+
+              <div class="card info-card customers-card">
+                {% for message in messages %}
+            <div class="alert alert-danger bg-danger text-light border-0 alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+                <div class="card-body">
+                    <form id="regForm" action="upload" method="POST" enctype="multipart/form-data">
+                      {% csrf_token %}
+                      <div class="form-group">
+                        <label><p>What's on your mind?</p></label><br>
+                        <input type="text" name="text" class="form-control form-control-lg" placeholder="share with us..">
+                      </div>
+                      <br>
+                      <button style="color: white;" type="submit" class="btn btn-primary">Post Now</button>
+                      <!-- Vertically centered Modal -->
+                      <button style="float: right; margin-left:3px;" type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#verticalycentered">
+                        <i class="bi bi-images"></i> Pic
+                      </button> 
+                      <div class="modal fade" id="verticalycentered" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Share your picture <i class="bi bi-camera-fill"></i> <i class="bi bi-camera-reels-fill"></i></h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">                            
+                                <input type="file" name="image_upload" class="form-control"><br>
+                                <input type="text" name="captionimg" class="form-control form-control-lg" placeholder="Caption...">    
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button style="color: white;" type="submit" class="btn btn-primary">Post</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div><!-- End Vertically centered Modal-->    
+                      <button style="float: right;" type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#verticalycentered1">
+                        <i class="bi bi-camera-reels-fill"></i> Vid
+                      </button> &nbsp; &nbsp;
+                      <div class="modal fade" id="verticalycentered1" tabindex="-1">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Share your Video <i class="bi bi-camera-fill"></i> <i class="bi bi-camera-reels-fill"></i></h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">                            
+                                <input type="file" name="video_upload" class="form-control"><br>
+                                <input type="text" name="captionvid" class="form-control form-control-lg" placeholder="Caption...">    
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              <button style="color: white;" type="submit" class="btn btn-primary">Post</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div><!-- End Vertically centered Modal--> 
+                    </form>                     
+                </div>
+              </div>
+            </div><!-- End Customers Card -->
+
+           
+
+            <!------- POST -------->
+           
+            
+            {% for post in posts reversed %}
+            <div class="col-xxl-4 col-xl-12">
+
+              <div class="card info-card customers-card">
+
+                <div class="card-body">
+                
+                <p class="card-title"><a href="{{post.user.image.url}}"><img class="rounded-circle" src="{{ post.user.image.url }}" width="45"></a><a href="/profile/{{ post.user }}">@{{post.user}}</a> <span>| {{ post.created_at|date:"D" }} at {{ post.created_at|date:"h:i" }}</span></hp>
+                
+                  <div class="d-flex align-items-center">
+                    <div class="ps-3">
+                      {% if post.captionimg != None and post.image.url != None %}
+                      <div class="p-2 px-3"><h5>{{ post.captionimg }}</h5></div>
+                      <a href="{{ post.image.url }}"><img class="img-fluid img-responsive" src="{{ post.image.url }}"></a>
+                      {% elif post.captionvid != None and post.video.url != None %}
+                      <div class="p-2 px-3"><h5>{{ post.captionvid }}</h5></div>
+                      <video class="img-fluid img-responsive" controls>
+                        <source src="{{ post.video.url }}" type='video/mp4'>
+                      </video>
+                      {% elif post.caption != None and post.file.url != None %}
+                      <div class="p-2 px-3"><h5>{{ post.caption }}</h5></div>
+                      <div class="feed-image p-2 px-3"><a href="{{ post.file.url }}">View File</a></div>
+                      {% else %}
+                      <div class="p-2 px-3"><h5>{{ post.text }}</h5></div>
+                      {% endif %}
+                    </div>
+                  </div><hr>
+                  <div style="overflow:auto;">
+                    <div style="float:left;">
+                      
+                      <h4>
+
+                        <button style="color:red;" class="likebutton" id="like{{post.id}}" data-catid="{{ post.id }}">
+                          <i class="{{post.like_stat}}"></i>
+                        </button>
+                  
+                        
+                        &nbsp;&nbsp;|&nbsp;&nbsp; 
+                        <a href="#"><i class="bi bi-chat-dots"></i></a>
+                      </h4>
+                      <p>
+                        {% if post.likes == 0 %}
+                        0 like  
+                        {% elif post.likes == 1 %}
+                        {{post.likes}} like 
+                        {% else %}
+                        {{ post.likes }} likes 
+                        {% endif %}
+                        | 0 comment</p>
+                    </div>
+                    <div style="float:right;">
+                      
+                    </div>
+                  </div>    
+                  
+                  <!--<h4><i class="bi bi-hand-thumbs-up-fill"></i></h4>
+                       <a href="#"><i class="bi bi-chat-dots-fill"></i></a>-->
+                </div>
+              </div>
+
+            </div>
+            {% endfor %}
+            <!--ENDPOST-->
+
+
+          </div>
+        </div><!-- End Left side columns -->
+
+        <!-- Right side columns -->
+        <div class="col-lg-6">
+
+
+
+          <div class="col-xxl-4 col-xl-12">
+
+            <div class="card info-card customers-card">
+
+              <div class="card-body">
+              
+                <p class="card-title"></p>
+              
+                <div class="d-flex align-items-center">
+                  
+                
+                </div>    
+                
+                <!--<h4><i class="bi bi-hand-thumbs-up-fill"></i></h4>
+                     <a href="#"><i class="bi bi-chat-dots-fill"></i></a>-->
+              </div>
+            </div>
+
+          </div>
+
+        </div><!-- End Right side columns -->
+
+      </div>
+    </section>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <!--<footer id="footer" class="footer">
+    <div class="copyright">
+      &copy; Copyright <strong><span>Fitri</span></strong>. All Rights Reserved
+    </div>
+  </footer>--><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'feed/vendor/apexcharts/apexcharts.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/chart.js/chart.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/echarts/echarts.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/quill/quill.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/simple-datatables/simple-datatables.js' %}"></script>
+  <script src="{% static 'feed/vendor/tinymce/tinymce.min.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'feed/js/main.js' %}"></script>
+  <script src="{% static 'feed/js/custom.js' %}"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      $('.likebutton').click(function(){
+        var catid;
+        catid = $(this).attr("data-catid");
+
+         $.ajax({
+          type:"GET",
+          url: "/like-post",
+          data: {
+            post_id: catid
+          },
+          success: function( data ) {
+            history.go(0);
+            $('.likebutton').html('<i class="bi bi-heart-fill"></i>')
+            
+          }
+        })
+      });
+    </script>
+
+</body>
+
+</html>

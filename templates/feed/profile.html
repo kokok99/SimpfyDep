@@ -1,0 +1,325 @@
+{% load static %}
+{% include "../header.html" %}
+
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+        <h1>Profile</h1>
+        
+      </div><!-- End Page Title -->
+  
+      <section class="section profile">
+        <div class="row">
+          <div class="col-xl-4">
+  
+            <div class="card">
+              <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                <a href="{{ user_profile.image.url }}">
+                <img src="{{ user_profile.image.url }}" alt="Profile" class="rounded-circle img-thumbnail">
+                </a>
+                <h2>{{ user_profile.user.username }}</h2>
+                <div class="mt-2">
+                    <p>{{user_post_len}} Posts  |  {{following_count}} Following  |  {{followers_count}} Followers</p>
+                    
+                    
+                </div>
+                <form action="/follow" method="POST">
+                  {% csrf_token %}
+					        <input type="hidden" value="{{ user_object.id }}" name="user">
+                  <input type="hidden" value="{{ user_object.username }}" name="users">
+                <div class="mt-2">
+                    {% if user_object.username == user.username %}
+					          <a href="/settings" class="btn btn-primary btn-sm">Edit Profile</a>
+					          {% else %}  
+                    {% if follow_status == True %}
+                    <a href="follow/{{user_object}}/0" class="btn btn-primary btn-sm">Unfollow</a>
+                    {% else %}
+                    <a href="follow/{{user_object}}/1" class="btn btn-primary btn-sm">Follow</a>
+                    {% endif %}
+                    {% endif %}
+                </form>
+                </div>
+              </div>
+            </div>
+  
+          </div>
+  
+          <div class="col-xl-8">
+  
+            <div class="card">
+              <div class="card-body pt-3">
+                <!-- Bordered Tabs -->
+                <ul class="nav nav-tabs nav-tabs-bordered">
+  
+                  <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
+                  </li>
+  
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Posts</button>
+                  </li>
+
+                  <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#saved">Saved Posts</button>
+                  </li>
+  
+                  
+  
+                </ul>
+                <div class="tab-content pt-2">
+  
+                  <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                    <h5 class="card-title">Bio</h5>
+                    <h5>{{ user_profile.bio }}</h5>
+  
+                    <h5 class="card-title">Profile Details</h5>
+  
+                    <div class="row">
+                      <div class="col-lg-3 col-md-4 label ">Full Name</div>
+                      <div class="col-lg-9 col-md-8">{{ user_profile.fname }}</div>
+                    </div>
+  
+                    <div class="row">
+                      <div class="col-lg-3 col-md-4 label">Live at</div>
+                      <div class="col-lg-9 col-md-8">{{ user_profile.location }}</div>
+                    </div>
+  
+                    <div class="row">
+                      <div class="col-lg-3 col-md-4 label">Job</div>
+                      <div class="col-lg-9 col-md-8">Web Designer</div>
+                    </div>
+
+  
+                  </div>
+
+  
+                <div class="tab-pane fade pt-3" id="profile-settings">
+  
+                  {% for post in user_posts reversed %}
+                  <div class="col-xxl-4 col-xl-8">
+      
+                    <div class="card info-card customers-card">
+      
+                      <div class="card-body">
+                      
+                        <p class="card-title"><img class="rounded-circle" src="{{ post.user.profileimg.url }}" width="45"><a href="/profile/{{ post.user }}">@{{post.user}}</a> <span>| {{ post.created_at|date:"D" }} at {{ post.created_at|date:"h:i" }}</span></hp>
+                      
+                        <div class="d-flex align-items-center">
+                          <div class="ps-3">
+                            {% if post.captionimg != None and post.image.url != None %}
+                            <div class="p-2 px-3"><h5>{{ post.captionimg }}</h5></div>
+                            <div class="feed-image p-2 px-3"><a href="{{ post.image.url }}"><img class="img-fluid img-responsive" src="{{ post.image.url }}"></a></div>
+                            {% elif post.captionvid != None and post.video.url != None %}
+                            <div class="p-2 px-3"><h5>{{ post.captionvid }}</h5></div>
+                            <div class="feed-image p-2 px-3">
+                            <video class="img-fluid img-responsive" controls>
+                              <source src="{{ post.video.url }}" type='video/mp4'>
+                            </video>
+                            </div>
+                            {% elif post.caption != None and post.file.url != None %}
+                            <div class="p-2 px-3"><h5>{{ post.caption }}</h5></div>
+                            <div class="feed-image p-2 px-3"><a href="{{ post.file.url }}">View File</a></div>
+                            {% else %}
+                            <div class="p-2 px-3"><h5>{{ post.text }}</h5></div>
+                            {% endif %}
+                          </div>
+                        </div><hr>
+                        <div style="overflow:auto;">
+                          <div style="float:left;">
+                            
+                            <h4>
+                              
+                              <button style="color:red;" class="likebutton" id="like{{post.id}}" data-catid="{{ post.id }}">
+                                <i class="{{post.like_stat}}"></i>
+                              </button>
+                              
+                              &nbsp;&nbsp;|&nbsp;&nbsp; 
+                              <a href="#"><i class="bi bi-chat-dots"></i></a>
+                            </h4>
+                            <p>
+                              {% if post.likes == 0 %}
+                              0 like  
+                              {% elif post.likes == 1 %}
+                              {{post.likes}} like 
+                              {% else %}
+                              {{ post.likes }} likes 
+                              {% endif %}
+                              | 0 comment</p>
+                          </div>
+                          <div style="float:right;">
+                            {% if user_object.username == user.username %}
+                              <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#verticalycentered-{{ post.id }}">
+                                <i class="bi bi-images"></i> Delete
+                              </button>
+                              <!-- Vertically centered Modal -->
+                          
+                               <div class="modal fade" id="verticalycentered-{{ post.id }}">
+                                 <div class="modal-dialog modal-dialog-centered">
+                                   <div class="modal-content">
+                                     <div class="modal-header">
+                                       <h5 class="modal-title"></h5>
+                                       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                     </div>
+                                     <div class="modal-body">                            
+                                             Are You sure want to delete this ?
+                                     </div>
+                                     <div class="modal-footer">
+                                       <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                       <a href="/delete_post/{{ post.id }}" style="color: white;" class="btn btn-primary">Confirm</a>
+                                     </div>
+                                   </div>
+                                 </div>
+                               </div><!-- End Vertically centered Modal-->
+                              <a class="btn btn-primary btn-sm" href="#">Edit</a>
+                              {% else %}
+                              {% endif %}
+                          </div>
+                        </div>    
+                        
+                        <!--<h4><i class="bi bi-hand-thumbs-up-fill"></i></h4>
+                             <a href="#"><i class="bi bi-chat-dots-fill"></i></a>-->
+                      </div>
+                    </div>
+      
+                  </div>
+                  {% endfor %}
+                </div>
+
+            <div class="tab-pane fade pt-3" id="saved">
+  
+                  {% for post in user_posts.saved reversed %}
+                  <div class="card info-card customers-card">
+
+                  <div class="card-body">
+                
+                
+                    <p class="card-title"><img class="rounded-circle" src="{{ post.user.image.url }}" width="45"><a href="/profile/{{ post.user }}">@{{post.user}}</a> <span>| {{ post.created_at|date:"D" }} at {{ post.created_at|date:"h:i" }}</span></hp>
+                  
+                    <div class="d-flex align-items-center">
+                      <div class="ps-3">
+                         {% if post.caption != None and post.image.url != None %}
+                         <div class="p-2 px-3"><h5>{{ post.caption }}</h5></div>
+                         <div class="feed-image p-2 px-3"><a href="{{ post.image.url }}"><img class="img-fluid img-responsive" src="{{ post.image.url }}"></a></div>
+                         {% else %}
+                         <div class="p-2 px-3"><h5>{{ post.text }}</h5></div>
+                         {% endif %}
+                    </div>
+                 </div><hr>
+                  <div style="overflow:auto;">
+                     <div style="float:left;">
+                    
+                        <h4>
+                          <!--<a class="likebutton" onclick="history.go(0)" href="/like-post?post_id={{post.id}}">
+                            <i class="bi bi-heart-fill"></i>
+                          </a>-->
+                          <button style="color:red;" class="likebutton" id="like{{post.id}}" data-catid="{{ post.id }}">
+                            <i class="bi bi-heart-fill"></i>
+                          </button>
+                          &nbsp;&nbsp;|&nbsp;&nbsp; 
+                          <a href="#"><i class="bi bi-chat-dots"></i></a>
+                        </h4>
+                         <p>
+                           {% if post.no_of_likes == 0 %}
+                           0 like  
+                           {% elif post.no_of_likes == 1 %}
+                           {{post.no_of_likes}} like 
+                           {% else %}
+                           {{ post.no_of_likes }} likes 
+                           {% endif %}
+                           | 0 comment</p>
+                      </div>
+                  
+                  <div style="float:right;">
+                    {% if user_object.username == user.username %}
+                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#verticalycentered-{{ post.id }}">
+                      <i class="bi bi-images"></i> Delete
+                    </button>
+                    <!-- Vertically centered Modal -->
+                
+                     <div class="modal fade" id="verticalycentered-{{ post.id }}">
+                       <div class="modal-dialog modal-dialog-centered">
+                         <div class="modal-content">
+                           <div class="modal-header">
+                             <h5 class="modal-title"></h5>
+                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                           </div>
+                           <div class="modal-body">                            
+                                   Are You sure want to delete this ?
+                           </div>
+                           <div class="modal-footer">
+                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                             <a href="/delete_post/{{ post.id }}" style="color: white;" class="btn btn-primary">Confirm</a>
+                           </div>
+                         </div>
+                       </div>
+                     </div><!-- End Vertically centered Modal-->
+                    <a class="btn btn-primary btn-sm" href="#">Edit</a>
+                    {% else %}
+                    {% endif %}
+                  </div>
+                  
+                </div>    
+                 
+               </div>
+              </div>
+                   {% endfor %}
+  
+            </div>
+  
+                  
+  
+                </div><!-- End Bordered Tabs -->
+  
+              </div>
+            </div>
+  
+          </div>
+        </div>
+      </section>
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <!--<footer id="footer" class="footer">
+    <div class="copyright">
+      &copy; Copyright <strong><span>Fitri</span></strong>. All Rights Reserved
+    </div>
+  </footer>--><!-- End Footer -->
+
+  <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'feed/vendor/apexcharts/apexcharts.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/chart.js/chart.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/echarts/echarts.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/quill/quill.min.js' %}"></script>
+  <script src="{% static 'feed/vendor/simple-datatables/simple-datatables.js' %}"></script>
+  <script src="{% static 'feed/vendor/tinymce/tinymce.min.js' %}"></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'feed/js/main.js' %}"></script>
+  <script src="{% static 'feed/js/post.js' %}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      $('.likebutton').click(function(){
+        var catid;
+        catid = $(this).attr("data-catid");
+
+         $.ajax({
+          type:"GET",
+          url: "/like-post",
+          data: {
+            post_id: catid
+          },
+          success: function( data ) {
+            history.go(0);
+            
+            
+          }
+        })
+      });
+    </script>
+</body>
+
+</html>
